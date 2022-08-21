@@ -29,16 +29,17 @@
 				}
 				$.ajax({
 					url : "/member/passChk",
-					type : "post",
+					type : "POST",
 					dataType : "json",
 					data : $("#delForm").serializeArray(),
 					success: function(data){
 						
-						if(data==0){
+						if(data==true){
+							if(confirm("회원을 탈퇴하시겠습니까?"))
+								$("#delForm").submit();
+						}else{
 							alert("패스워드가 틀렸습니다.");
 							return;
-						}else if(confirm("회원탈퇴하시겠습니까?")){
-								$("#delForm").submit();
 						}
 					}
 				})

@@ -19,13 +19,13 @@
 		SELECT USERID, USERPASS, USERNAME
 			FROM YS_MEMBER
 			WHERE USERID = #{userId}
-			AND   USERPASS = #{userPass}
+			<!-- AND   USERPASS = #{userPass} -->
 	</select>
 	
 	<!-- 회원정보 수정 -->
 	<update id="memberUpdate">
 		UPDATE YS_MEMBER SET
-		USERPASS = #{userPass},
+		<!-- USERPASS = #{userPass}, -->
 		USERNAME = #{userName}
 		WHERE USERID = #{userId}
 	</update>
@@ -34,7 +34,7 @@
 	<delete id="memberDelete">
 		DELETE FROM YS_MEMBER
 		WHERE USERID = #{userId}
-		  AND USERPASS = #{userPass}
+		  <!-- AND USERPASS = #{userPass} -->
 	</delete>
 	
 	<!-- 패스워드 체크 -->

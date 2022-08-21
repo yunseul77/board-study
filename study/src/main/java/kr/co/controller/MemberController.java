@@ -6,6 +6,7 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +25,9 @@ public class MemberController {
 	@Inject
 	MemberService service;
 	
+	@Inject
+	BCryptPasswordEncoder pwdEncoder;
+	
 	//회원가입 GET
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public void getRegister() throws Exception {
@@ -39,6 +43,10 @@ public class MemberController {
 			if(result == 1) {
 				return "/member/register";
 			} else if(result == 0) {
+				String inputPass = vo.getUserPass();
+				String pwd = pwdEncoder.encode(inputPass);
+				vo.setUserPass(pwd);
+				
 				service.register(vo);
 			}
 		} catch (Exception e) {
@@ -50,17 +58,24 @@ public class MemberController {
 	
 	//로그인
 	@RequestMapping(value="/login", method = RequestMethod.POST)
-	public String login(MemberVO vo, HttpServletRequest req, RedirectAttributes rttr) throws Exception {
+	public String login(MemberVO vo, HttpSession session, RedirectAttributes rttr) throws Exception {
 		logger.info("login");
 		
-		HttpSession session = req.getSession();
+		session.getAttribute("member");
 		MemberVO login = service.login(vo);
+		boolean pwdMatch;
 		
-		if(login == null) {
+		if(login != null) {
+			pwdMatch = pwdEncoder.matches(vo.getUserPass(), login.getUserPass());
+		}else {
+			pwdMatch = false;
+		}
+		
+		if(login != null && pwdMatch == true) {
+			session.setAttribute("member", login);
+		}else {
 			session.setAttribute("member", null);
 			rttr.addFlashAttribute("msg", false);
-		}else {
-			session.setAttribute("member", login);
 		}
 		
 		return "redirect:/";
@@ -108,7 +123,7 @@ public class MemberController {
 	@RequestMapping(value="/memberDelete", method = RequestMethod.POST)
 	public String memberDelete(MemberVO vo, HttpSession session, RedirectAttributes rttr) throws Exception {
 		logger.info("memberDelete");
-		
+		/* passChk()에서 처리하기때문에 필요없어짐 
 		MemberVO member = (MemberVO)session.getAttribute("member");
 		
 		String sessionPass = member.getUserPass();
@@ -119,7 +134,7 @@ public class MemberController {
 			rttr.addFlashAttribute("msg", false);
 			return "redirect:/member/memberDeleteView";
 		}
-		
+		*/
 		service.memberDelete(vo);
 		session.invalidate();
 		return"redirect:/";
@@ -128,10 +143,12 @@ public class MemberController {
 	//패스워드 체크
 	@ResponseBody
 	@RequestMapping(value="/passChk", method = RequestMethod.POST)
-	public int passChk(MemberVO vo) throws Exception {
+	public boolean passChk(MemberVO vo) throws Exception {
 		logger.info("passChk");
-		int result = service.passChk(vo);
-		return result;
+
+		MemberVO login = service.login(vo);
+		boolean pwdChk = pwdEncoder.matches(vo.getUserPass(), login.getUserPass());
+		return pwdChk;
 	}
 	
 	//아이디 중복체크
