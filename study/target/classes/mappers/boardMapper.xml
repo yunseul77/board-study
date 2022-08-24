@@ -5,7 +5,10 @@
 <mapper namespace="boardMapper">
    
    <!-- 게시판 글 작성 -->
-   <insert id="insert">
+   <insert id="insert" parameterType="kr.co.vo.BoardVO" useGeneratedKeys="true" keyProperty="bno">
+		<selectKey keyProperty="bno" resultType="int" order="BEFORE">
+			SELECT YS_BOARD_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
    		INSERT INTO YS_BOARD(	BNO
    								, TITLE
    								, CONTENT
@@ -81,4 +84,21 @@
 			FROM YS_BOARD
 			WHERE BNO = #{bno}
    </delete>
+   
+   <!-- 첨부파일 업로드 -->
+   <insert id="insertFile" parameterType="hashMap">
+		INSERT INTO YS_FILE(
+			FILE_NO,
+			BNO,
+			ORG_FILE_NAME,
+			STORED_FILE_NAME,
+			FILE_SIZE
+		)VALUES(
+			SEQ_YS_FILE_NO.NEXTVAL,
+			#{BNO},
+			#{ORG_FILE_NAME},
+			#{STORED_FILE_NAME},
+			#{FILE_SIZE}
+		)
+   </insert>
 </mapper>

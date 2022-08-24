@@ -1,6 +1,7 @@
 package kr.co.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -8,7 +9,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
 import kr.co.vo.BoardVO;
-import kr.co.vo.Criteria;
 import kr.co.vo.SearchCriteria;
 
 @Repository
@@ -57,5 +57,12 @@ public class BoardDAOImpl implements BoardDAO {
 	public void delete(int bno) throws Exception{
 		
 		sqlSession.delete("boardMapper.delete", bno);
+	}
+	
+	//첨부파일 업로드
+	@Override
+	public void insertFile(Map<String, Object> map) throws Exception{
+		
+		sqlSession.insert("boardMapper.insertFile", map);
 	}
 }
