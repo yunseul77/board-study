@@ -1,8 +1,12 @@
 package kr.co.controller;
 
+import java.io.File;
+import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -46,7 +51,7 @@ public class BoardController {
 		
 		service.write(boardVO, ysRequest);
 		
-		return "redirect:/";
+		return "redirect:/board/list";
 	}
 	
 	//게시물 목록 조회
@@ -78,6 +83,10 @@ public class BoardController {
 		List<ReplyVO> replyList = replyService.readReply(boardVO.getBno());
 		model.addAttribute("replyList", replyList);
 		
+		//첨부파일 조회
+		List<Map<String, Object>> fileList = service.selectFileList(boardVO.getBno());
+		model.addAttribute("fileList", fileList);
+		
 		return "board/readView";
 	}
 	
@@ -89,15 +98,24 @@ public class BoardController {
 		model.addAttribute("update", service.read(boardVO.getBno()));
 		model.addAttribute("scri", scri);
 		
+		//첨부파일 리스트
+		List<Map<String, Object>> fileList = service.selectFileList(boardVO.getBno());
+		model.addAttribute("file", fileList);
+		
 		return "board/updateView";
 	}
 	
 	//게시판 수정
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	public String update(BoardVO boardVO, @ModelAttribute("scri") SearchCriteria scri, RedirectAttributes rttr) throws Exception{
+	public String update(BoardVO boardVO,
+						 @ModelAttribute("scri") SearchCriteria scri,
+						 RedirectAttributes rttr,
+						 @RequestParam(value="fileNodel[]") String[] files,
+						 @RequestParam(value="filenameDel[]") String[] fileNames,
+						 MultipartHttpServletRequest ysRequest) throws Exception{
 		logger.info("update");
 		
-		service.update(boardVO);
+		service.update(boardVO, files, fileNames, ysRequest);
 		
 		rttr.addAttribute("page", scri.getPage());
 		rttr.addAttribute("perPageNum", scri.getPerPageNum());
@@ -180,15 +198,32 @@ public class BoardController {
 	@RequestMapping(value="/replyDelete", method = RequestMethod.POST)
 	public String replyDelete(ReplyVO vo, SearchCriteria scri, RedirectAttributes rttr) throws Exception {
 		logger.info("replyDelete");
-			
+
 		replyService.deleteReply(vo);
-			
+
 		rttr.addAttribute("bno", vo.getBno());
 		rttr.addAttribute("page", scri.getPage());
 		rttr.addAttribute("perPageNum", scri.getPerPageNum());
 		rttr.addAttribute("searchType", scri.getSearchType());
 		rttr.addAttribute("keyword", scri.getKeyword());
-			
+
 		return "redirect:/board/readView";
+	}
+	
+	//첨부파일 다운
+	@RequestMapping(value="/fileDown")
+	public void fileDown(@RequestParam Map<String, Object> map, HttpServletResponse response) throws Exception {
+		Map<String, Object> resultMap = service.selectFileInfo(map);
+		String storedFileName = (String) resultMap.get("STORED_FILE_NAME");
+		String originalFileName = (String) resultMap.get("ORG_FILE_NAME");
+		
+		byte fileByte[] = org.apache.commons.io.FileUtils.readFileToByteArray(new File("E:\\dev-git\\file\\"+storedFileName));
+		
+		response.setContentType("application/octet-stream");
+		response.setContentLength(fileByte.length);
+		response.setHeader("Content-Disposition",  "attachment; fileName=\""+URLEncoder.encode(originalFileName, "UTF-8")+"\";");
+		response.getOutputStream().write(fileByte);
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
 	}
 } 

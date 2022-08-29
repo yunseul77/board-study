@@ -4,11 +4,12 @@ import java.util.Date;
 
 public class BoardVO {
 
-	private int bno;
-	private String title;
-	private String content;
-	private String writer;
-	private Date regdate;
+	private int bno; 		// 게시글 번호
+	private String title; 	// 제목
+	private String content; // 내용
+	private String writer; 	// 작성자
+	private Date regdate;	// 작성일
+	private int hit;		// 조회수
 	
 	public int getBno() {
 		return bno;
@@ -40,5 +41,10 @@ public class BoardVO {
 	public void setRegdate(Date regdate) {
 		this.regdate = regdate;
 	}
-	
+	public int getHit() {
+		return hit;
+	}
+	public void setHit(int hit) {
+		this.hit = hit;
+	}
 }

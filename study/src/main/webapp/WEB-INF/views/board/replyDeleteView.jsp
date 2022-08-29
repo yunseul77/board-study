@@ -48,7 +48,16 @@
 					<input type="hidden" id="keyword" name="keyword" value="${scri.keyword}"> 
 						
 					<div>
-						<p>삭제 하시겠습니까?</p>
+						<p>해당 댓글을 삭제 하시겠습니까?</p>
+						<ol class="form-group">	
+							<li>
+								<p>
+								작성자 : ${replyDelete.writer}<br/>
+								작성 날짜 : <fmt:formatDate value="${replyDelete.regdate}" pattern="yyyy-MM-dd"/>
+								</p>
+								<p>${replyDelete.content}</p>
+							</li>
+						</ol>
 						<button type="submit" class="delete_btn">예. 삭제합니다.</button>
 						<button type="button" class="cancel_btn">아니오. 삭제하지 않습니다.</button>
 					</div>

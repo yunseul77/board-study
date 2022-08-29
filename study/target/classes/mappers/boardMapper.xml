@@ -13,7 +13,7 @@
    								, TITLE
    								, CONTENT
    								, WRITER )
-   					VALUES(		YS_BOARD_SEQ.NEXTVAL
+   					VALUES(		  #{bno}
    								, #{title}
    								, #{content}
    								, #{writer} )
@@ -25,13 +25,15 @@
 		        TITLE, 
 		        CONTENT,
 		        WRITER, 
-		        REGDATE
+		        REGDATE,
+		        HIT
 		 FROM ( 
 		        SELECT BNO, 
 		               TITLE, 
 		               CONTENT, 
 		               WRITER, 
-		               REGDATE, 
+		               REGDATE,
+		               HIT, 
 		               ROW_NUMBER() OVER(ORDER BY BNO DESC) AS RNUM
 		         FROM YS_BOARD
 		         WHERE 1=1
@@ -101,4 +103,38 @@
 			#{FILE_SIZE}
 		)
    </insert>
+   
+   <!-- 첨부파일 조회 -->
+   <select id="selectFileList" parameterType="int" resultType="hashMap">
+   	SELECT	FILE_NO,
+   			ORG_FILE_NAME,
+   			ROUND(FILE_SIZE/1024,1) AS FILE_SIZE
+   		FROM YS_FILE
+   	   WHERE BNO = #{bno}
+   	     AND DEL_GB = 'N'
+   	   ORDER BY FILE_NO ASC	
+   </select>
+   
+   <!-- 첨부파일 다운 -->
+   <select id="selectFileInfo" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			STORED_FILE_NAME,
+			ORG_FILE_NAME
+		FROM YS_FILE
+		WHERE FILE_NO = #{FILE_NO}
+   </select>
+   
+   <!-- 첨부파일 수정 -->
+   <update id="updateFile" parameterType="hashMap">
+		UPDATE YS_FILE SET
+		DEL_GB = 'Y'
+		WHERE FILE_NO = #{FILE_NO}
+   </update>
+   
+   <!-- 게시물 조회수 -->
+   <update id="boardHit" parameterType="int">
+		UPDATE YS_BOARD SET
+		HIT = HIT + 1
+		WHERE BNO = #{bno}
+   </update>
 </mapper>

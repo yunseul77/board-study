@@ -25,7 +25,7 @@
 	<!-- 회원정보 수정 -->
 	<update id="memberUpdate">
 		UPDATE YS_MEMBER SET
-		<!-- USERPASS = #{userPass}, -->
+		USERPASS = #{userPass},
 		USERNAME = #{userName}
 		WHERE USERID = #{userId}
 	</update>

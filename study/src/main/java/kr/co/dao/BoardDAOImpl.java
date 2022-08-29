@@ -65,4 +65,32 @@ public class BoardDAOImpl implements BoardDAO {
 		
 		sqlSession.insert("boardMapper.insertFile", map);
 	}
+	
+	//첨부파일 조회
+	@Override
+	public List<Map<String, Object>> selectFileList(int bno) throws Exception{
+		
+		return sqlSession.selectList("boardMapper.selectFileList", bno);
+	}
+	
+	//첨부파일 다운
+	@Override
+	public Map<String, Object> selectFileInfo(Map<String, Object> map) throws Exception {
+		
+		return sqlSession.selectOne("boardMapper.selectFileInfo", map);
+	}
+	
+	//첨부파일 수정
+	@Override
+	public void updateFile(Map<String, Object> map) throws Exception {
+		
+		sqlSession.update("boardMapper.updateFile", map);
+	}
+	
+	//게시물 조회수
+	@Override
+	public void boardHit(int bno) throws Exception {
+		
+		sqlSession.update("boardMapper.boardHit", bno);
+	}
 }

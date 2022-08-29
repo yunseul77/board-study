@@ -30,6 +30,16 @@
 				}
 			}
 		}
+		function fn_addFile(){
+			var fileIndex = 1;
+			$(".fileAdd_btn").on("click", function(){
+				$("#fileIndex").append("<div><input type='file' style='float:left;' name='file_"+(fileIndex++)+"'>"+"</button>"+"<button type='button' style='float:right;' id='fileDelBtn'>"+"삭제"+"</button></div>");
+			});
+			$(document).on("click","#fileDelBtn", function(){
+				$(this).parent().remove();
+				
+			});
+		}
 	</script>
 	<body>
 	
@@ -71,6 +81,7 @@
 							</tr>
 								<td>						
 									<button class="write_btn" type="submit">작성</button>
+									<button class="fileAdd_btn" type="button">파일추가</button>
 								</td>
 							</tr>
 						</c:if>
